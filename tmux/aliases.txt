@@ -1,0 +1,6 @@
+t=tmux
+ta='t attach -t'
+tkill='t kill-session -t'
+tn='~/.config/tmux/create-dev-session.sh'
+treload='tmux source-file ~/.config/tmux/tmux.conf'
+
