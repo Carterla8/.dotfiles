@@ -55,3 +55,14 @@ return {
     end
   }
 }
+
+
+
+-- Add to your metals config's on_attach function
+map("n", "<leader>tt", function()
+  -- This opens test output in a terminal window
+  local test_cmd = require("metals").test_nearest_command()
+  if test_cmd then
+    vim.cmd("TermExec cmd='" .. test_cmd .. "'")
+  end
+end, { desc = "Test nearest in terminal", buffer = bufnr })
