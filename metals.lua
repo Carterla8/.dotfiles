@@ -4,26 +4,56 @@ return {
     "scalameta/nvim-metals",
     dependencies = {
       "nvim-lua/plenary.nvim",
+      "mfussenegger/nvim-dap", -- for debugging
     },
     ft = { "scala", "sbt", "java" },
     opts = function()
       local metals_config = require("metals").bare_config()
       
-      -- Example of settings
       metals_config.settings = {
         showImplicitArguments = true,
         excludedPackages = { "akka.actor.typed.javadsl", "com.github.swagger.akka.javadsl" },
+        testUserInterface = "Test Explorer",
       }
-
-      -- Debug settings
       metals_config.init_options.statusBarProvider = "on"
       
-      -- LSP mappings - these won't conflict with LazyVim's built-ins
       metals_config.on_attach = function(client, bufnr)
         require("metals").setup_dap()
         
-        -- Metals-specific commands
         local map = vim.keymap.set
+        
+        -- Test running (your main ones)
+        map("n", "<leader>tc", function()
+          require("metals").test_class()
+        end, { desc = "Test class", buffer = bufnr })
+        
+        map("n", "<leader>tf", function()
+          require("metals").test_file()
+        end, { desc = "Test file", buffer = bufnr })
+        
+        map("n", "<leader>tt", function()
+          require("metals").test_nearest()
+        end, { desc = "Test nearest", buffer = bufnr })
+        
+        map("n", "<leader>ts", function()
+          require("metals").test_suite()
+        end, { desc = "Test suite", buffer = bufnr })
+        
+        -- Debug test
+        map("n", "<leader>td", function()
+          require("metals").test_debug_nearest()
+        end, { desc = "Debug nearest test", buffer = bufnr })
+        
+        -- Test in popup (your new one)
+        map("n", "<leader>tp", function()
+          local cmd = "sbt test"
+          require("lazyvim.util").terminal.open(cmd, { 
+            cwd = vim.fn.getcwd(),
+            size = { width = 0.8, height = 0.8 }
+          })
+        end, { desc = "Test nearest in popup", buffer = bufnr })
+        
+        -- Other Metals features
         map("n", "<leader>cws", function()
           require("metals").hover_worksheet()
         end, { desc = "Metals worksheet hover", buffer = bufnr })
@@ -39,17 +69,7 @@ return {
         map("n", "<leader>cmc", function()
           require("metals").commands()
         end, { desc = "Metals commands", buffer = bufnr })
-
-        map("n", "<leader>tp", function()
-  -- Run in a floating terminal
-  local cmd = "sbt test"  -- This will run the specific test Metals identifies
-  require("lazyvim.util").terminal.open(cmd, { 
-    cwd = vim.fn.getcwd(),
-    size = { width = 0.8, height = 0.8 }
-  })
-end, { desc = "Test nearest in popup", buffer = bufnr })
       end
-
       return metals_config
     end,
     config = function(self, metals_config)
