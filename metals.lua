@@ -39,6 +39,15 @@ return {
         map("n", "<leader>cmc", function()
           require("metals").commands()
         end, { desc = "Metals commands", buffer = bufnr })
+
+        map("n", "<leader>tp", function()
+  -- Run in a floating terminal
+  local cmd = "sbt test"  -- This will run the specific test Metals identifies
+  require("lazyvim.util").terminal.open(cmd, { 
+    cwd = vim.fn.getcwd(),
+    size = { width = 0.8, height = 0.8 }
+  })
+end, { desc = "Test nearest in popup", buffer = bufnr })
       end
 
       return metals_config
@@ -55,14 +64,3 @@ return {
     end
   }
 }
-
-
-
--- Add to your metals config's on_attach function
-map("n", "<leader>tt", function()
-  -- This opens test output in a terminal window
-  local test_cmd = require("metals").test_nearest_command()
-  if test_cmd then
-    vim.cmd("TermExec cmd='" .. test_cmd .. "'")
-  end
-end, { desc = "Test nearest in terminal", buffer = bufnr })
