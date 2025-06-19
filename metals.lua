@@ -84,3 +84,15 @@ return {
     end
   }
 }
+
+
+vim.opt.clipboard = "unnamedplus"  -- Use system clipboard for all yank/paste
+vim.opt.ignorecase = true    -- Case insensitive search
+vim.opt.smartcase = true     -- Unless uppercase letters used
+vim.opt.scrolloff = 8        -- Keep 8 lines visible above/below cursor
+vim.opt.sidescrolloff = 8    -- Same for horizontal
+vim.opt.updatetime = 250     -- Faster completion/diagnostics
+vim.opt.undofile = true               -- Persistent undo
+vim.opt.wrap = false                  -- Don't wrap long lines
+vim.opt.splitbelow = true             -- New splits below
+vim.opt.splitright = true             -- New splits right
