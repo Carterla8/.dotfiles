@@ -11,15 +11,17 @@ local function run_nearest_test()
     return
   end
   
+  -- Extract module name from path
+  local module_name = filepath:match("/modules/([^/]+)/src/")
+  if not module_name then
+    print("Could not determine module name from path")
+    return
+  end
+  
   -- Find all test methods in the file
   local tests = {}
   for i, line in ipairs(lines) do
-    -- Match ScalaTest patterns: "test(...)" or "it(...)" or "describe(...)" etc.
-    local test_match = line:match('test%s*%(%s*"([^"]+)"') or 
-                      line:match('it%s*%(%s*"([^"]+)"') or
-                      line:match('"([^"]+)"%s+in%s+{') or
-                      line:match('scenario%s*%(%s*"([^"]+)"')
-    
+    local test_match = line:match('test%s*%(%s*"([^"]+)"')
     if test_match then
       table.insert(tests, {
         name = test_match,
@@ -39,16 +41,11 @@ local function run_nearest_test()
   local closest_test = tests[1]
   
   -- Build sbt command
-  local sbt_cmd = string.format('sbt "test:testOnly *%s -- -z \\"%s\\""', 
-                                class_name, closest_test.name)
+  local sbt_cmd = string.format('sbt "%s/testOnly *%s -- -z \\"%s\\""', 
+                                module_name, class_name, closest_test.name)
   
   print("Running: " .. sbt_cmd)
-  
-  -- Run the command in terminal
   vim.cmd("terminal " .. sbt_cmd)
-  
-  -- Alternative: use vim.fn.system() if you don't want a terminal window
-  -- vim.fn.system(sbt_cmd)
 end
 
 -- Set up the keybinding
