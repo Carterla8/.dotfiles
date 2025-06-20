@@ -1,7 +1,4 @@
--- Add this to your LazyVim neotest config (usually in ~/.config/nvim/lua/plugins/neotest.lua)
--- Or create ~/.config/nvim/lua/config/neotest.lua and require it
-
--- Helper functions for SBT multi-module support
+-- ~/.config/nvim/lua/plugins/neotest.lua
 local function find_sbt_root(path)
   local current = path
   while current ~= "/" do
@@ -15,37 +12,27 @@ end
 
 local function get_module_name(file_path)
   local sbt_root = find_sbt_root(file_path)
-  if not sbt_root then
-    return nil
-  end
+  if not sbt_root then return nil end
   
   local modules_dir = sbt_root .. "/modules"
   if string.find(file_path, modules_dir, 1, true) then
     local relative_path = string.sub(file_path, string.len(modules_dir) + 2)
-    local module_name = string.match(relative_path, "([^/]+)")
-    return module_name
+    return string.match(relative_path, "([^/]+)")
   end
-  
   return nil
 end
 
--- If you have an existing neotest config, just modify the scala adapter:
 return {
   "nvim-neotest/neotest",
-  dependencies = {
-    "stevanmilic/neotest-scala",
-  },
+  dependencies = { "stevanmilic/neotest-scala" },
   opts = {
     adapters = {
       ["neotest-scala"] = {
         command = function(position)
-          local file_path = position.path
-          local sbt_root = find_sbt_root(file_path)
-          local module_name = get_module_name(file_path)
+          local sbt_root = find_sbt_root(position.path)
+          local module_name = get_module_name(position.path)
           
-          if not sbt_root then
-            return { "sbt", "test" }
-          end
+          if not sbt_root then return { "sbt", "test" } end
           
           vim.cmd("cd " .. sbt_root)
           
@@ -62,13 +49,9 @@ return {
             return { "sbt", "test" }
           end
         end,
-        
-        cwd = function(path)
-          return find_sbt_root(path) or vim.fn.getcwd()
-        end,
-        
-        framework = "munit", -- Adjust to your framework
-        root_pattern = { "build.sbt", "project/build.properties" },
+        cwd = function(path) return find_sbt_root(path) or vim.fn.getcwd() end,
+        framework = "scalatest",
+        root_pattern = { "build.sbt" },
       },
     },
   },
